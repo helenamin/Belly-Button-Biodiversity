@@ -9,33 +9,34 @@ function init() {
         console.log(data);
 
         // Grab values from the data json object to build the drop down
-        var IDs = data.metadata.map(row => row.id);
-        
-        buildDropDown(IDs);
+        names = data.names;
+        console.log(names);
+                
+        buildDropDown(names);
 
         //Load data into Demographoce info
         buildPanel(data.metadata[0]);
 
-        var samples= data.samples
-        // console.log(samples);
+        //Plot unsing initial dataset (name & ID: 940 with index of 0)
+        buildBarPlot(data.samples[0]);
 
-        buildBarPlot(samples[0]);
-
-        buildBubblePlot(samples[0]);
+        buildBubblePlot(data.samples[0]);
     });  
 }
 
+// Build the dropdown menu
 function buildDropDown(data){
     // Use D3 to select the dropdown menu
     var dropdownMenu = d3.select("#selDataset");
     // Add DropDown options
     for (i=0;i<data.length;i++){
-        dropdownMenu.append("option").text(data[i]);
+        dropdownMenu.append("option").text(data[i]).property("value", i);
     } 
 }
 
+// Build the Demographoce info section of the page
 function buildPanel(sample_metadata){
-    
+    // Grab values(required sample info) from the sample_metadata object to build the panel
       var ID = sample_metadata.id;
       var Ethnicity = sample_metadata.ethnicity;
       var Gender = sample_metadata.gender;
@@ -44,7 +45,13 @@ function buildPanel(sample_metadata){
       var bbtype = sample_metadata.bbtype;
       var wfreq = sample_metadata.wfreq;
 
-      var panel_body = d3.select("#sample-metadata");
+    // Use D3 to select the sample_metadata panel
+      var panel_body = d3.select("#sample-metadata"); 
+
+    // Remove previous content if exist
+      panel_body.html("");
+
+    // Add values to the sample_metadata panel
       panel_body.append("p").text(`ID : ${ID}`);
       panel_body.append("p").text(`Ethnicity : ${Ethnicity}`);
       panel_body.append("p").text(`Gender : ${Gender}`);
@@ -54,25 +61,33 @@ function buildPanel(sample_metadata){
       panel_body.append("p").text(`wfreq : ${wfreq}`);
 }
 
+// Plot the bar chart
 function buildBarPlot(data){  
     console.log(data.sample_values);
-    // Slice the first 10 objects for plotting
+    // Slice the first 10 samples for plotting
     sliced_OTU_Ids_Data = data.otu_ids.slice(0,10);
     sliced_sample_values_Data = data.sample_values.slice(0,10);
+    sliced_labels = data.otu_labels.slice(0,10);
 
 
     // Reverse the array to accommodate Plotly's defaults
     OTU_Ids_reversedData = sliced_OTU_Ids_Data.reverse();
     sample_values_reversedData = sliced_sample_values_Data.reverse();
+    labels_reversedData = sliced_labels.reverse();
 
-    console.log(OTU_Ids_reversedData);
+    plot_otu_ids = OTU_Ids_reversedData.map(i =>"OTU "+ i);
+
+    console.log(plot_otu_ids);
     console.log(sample_values_reversedData);
+    console.log(labels_reversedData);
 
     // Trace for Bar Plot
     var trace1 = {
         x: sample_values_reversedData,
-        y: OTU_Ids_reversedData,
-        text: OTU_Ids_reversedData,
+        y: plot_otu_ids,
+        text: labels_reversedData,
+        marker: {
+            color: '#1179b0'},
         type: "bar",
         orientation: "h"
     };
@@ -80,38 +95,37 @@ function buildBarPlot(data){
     // data
     var data = [trace1];
 
+    // create layout variable to set plots layout
+    var layout = {
+        title: "Top 10 OTUs"
+    }
+
     // Render the plot to the div tag with id "bar"
-    Plotly.newPlot("bar", data);
+    Plotly.newPlot("bar", data,layout);
 }
 
+// Plt the bubble chart
 function buildBubblePlot(data){  
     console.log(data.sample_values);
-    // Slice the first 10 objects for plotting
-    sliced_OTU_Ids_Data = data.otu_ids.slice(0,10);
-    sliced_sample_values_Data = data.sample_values.slice(0,10);
 
     // Trace for Bubble Plot
     var trace1 = {
-        x: sliced_OTU_Ids_Data,
-        y: sliced_sample_values_Data,
+        x: data.otu_ids,
+        y: data.sample_values,
         mode: 'markers',
         marker: {
-          color: ['rgb(93, 164, 214)', 'rgb(255, 144, 14)',  'rgb(44, 160, 101)', 'rgb(255, 65, 54)'],
-          opacity: [1, 0.8, 0.6, 0.4],
-          size: [40, 60, 80, 100]
+          color: data.otu_ids,
+          size: data.sample_values
         }
       };
       
       var data = [trace1];
       
-    //   var layout = {
-    //     title: 'Marker Size and Color',
-    //     showlegend: false,
-    //     height: 600,
-    //     width: 600
-    //   };
+      var layout = {
+        xaxis: {title: "OTU ID"}
+      };
       
-      Plotly.newPlot('bubble', data);
+      Plotly.newPlot('bubble', data,layout);
 
 }
 
@@ -120,31 +134,27 @@ function buildBubblePlot(data){
 
 
 
-// // Call updatePlotly() when a change takes place to the DOM
-// d3.selectAll("#selDataset").on("change", updatePlotly);
+// Call updatePlotly() when a change takes place to the DOM
+d3.selectAll("#selDataset").on("change", updatePlotly);
 
-// // This function is called when a dropdown menu item is selected
-// function updatePlotly() {
-//     // Use D3 to select the dropdown menu
-//     var dropdownMenu = d3.select("#selDataset");
-//     // Assign the value of the dropdown menu option to a variable
-//     var dataset = dropdownMenu.property("value");
-  
-//     // Initialize x and y arrays
-//     var x = [];
-//     var y = [];
-  
-//     .
-//     .
-//     .
-  
-//     // Note the extra brackets around 'x' and 'y'
-//     Plotly.restyle("bar", "x", [x]);
-//     Plotly.restyle("bar", "y", [y]);
+// This function is called when a dropdown menu item is selected
+function updatePlotly() {
+    // Use D3 to select the dropdown menu
+    var dropdownMenu = d3.select("#selDataset");
+    // Assign the value of the dropdown menu option to a variable
+    var dataset = dropdownMenu.property("value");
+    
+    console.log(dataset);
 
-//     // Note the extra brackets around 'x' and 'y'
-//     Plotly.restyle("bubble", "x", [x]);
-//     Plotly.restyle("bubble", "y", [y]);
-//   }
+    d3.json(url).then(function(data) {
+
+        buildPanel(data.metadata[dataset]);
+
+        buildBarPlot(data.samples[dataset]);
+
+        buildBubblePlot(data.samples[dataset]);
+
+    });
+  }
   
   init();
