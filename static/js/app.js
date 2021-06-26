@@ -21,6 +21,8 @@ function init() {
         buildBarPlot(data.samples[0]);
 
         buildBubblePlot(data.samples[0]);
+
+        buildGaugePlot(data.metadata[0]);
     });  
 }
 
@@ -104,7 +106,7 @@ function buildBarPlot(data){
     Plotly.newPlot("bar", data,layout);
 }
 
-// Plt the bubble chart
+// Plot the bubble chart
 function buildBubblePlot(data){  
     console.log(data.sample_values);
 
@@ -112,6 +114,7 @@ function buildBubblePlot(data){
     var trace1 = {
         x: data.otu_ids,
         y: data.sample_values,
+        text:(data.otu_ids,data.sample_values,data.otu_labels),
         mode: 'markers',
         marker: {
           color: data.otu_ids,
@@ -129,9 +132,45 @@ function buildBubblePlot(data){
 
 }
 
+//Plot the Gauge chart
+function buildGaugePlot(sample_metadata){
+    var wfreq = sample_metadata.wfreq;
 
+    trace = {
+        domain: { x: [0, 1], y: [0, 1] },
+        type: "indicator",
+        mode: "gauge+number",
+        value: wfreq,
+        title: { text: '<b>Belly Button Washing Frequency</b> <br> Scrubs per week', font: { size: 24 } },
+        gauge: {
+          axis: { range: [0, 9],visible:false},
+          steps: [
+            { range: [0, 1], color: "#e6e6e6" },
+            { range: [1, 2], color: "#e6ffe6" },
+            { range: [2, 3], color: "#ccffe6" },
+            { range: [3, 4], color: "#99ff99" },
+            { range: [4, 5], color: "#66ff99" },
+            { range: [5, 6], color: "#66ff66" },
+            { range: [6, 7], color: "#00ff00" },
+            { range: [7, 8], color: "#33cc33" },
+            { range: [8, 9], color: "#00cc00" },
+          ],
+        borderwidth:0
+        }
+      }
 
+      var data = [trace];
 
+      var layout = {
+        width: 500,
+        height: 400,
+        margin: { t: 25, r: 25, l: 25, b: 25 },
+        font: { color: "black", family: "Arial" }
+      };
+      
+      Plotly.newPlot('gauge', data, layout); 
+
+}
 
 
 // Call updatePlotly() when a change takes place to the DOM
@@ -153,6 +192,8 @@ function updatePlotly() {
         buildBarPlot(data.samples[dataset]);
 
         buildBubblePlot(data.samples[dataset]);
+
+        buildGaugePlot(data.metadata[dataset]);
 
     });
   }
