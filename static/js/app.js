@@ -118,13 +118,16 @@ function buildBubblePlot(data){
         mode: 'markers',
         marker: {
           color: data.otu_ids,
-          size: data.sample_values
+          size: data.sample_values,
+          // colorscale: Earth
         }
       };
       
       var data = [trace1];
       
       var layout = {
+        title:"All OTUs for this subject ID",
+        height:800,
         xaxis: {title: "OTU ID"}
       };
       
@@ -136,41 +139,75 @@ function buildBubblePlot(data){
 function buildGaugePlot(sample_metadata){
     var wfreq = sample_metadata.wfreq;
 
-    trace = {
-        domain: { x: [0, 1], y: [0, 1] },
-        type: "indicator",
-        mode: "gauge+number",
-        value: wfreq,
-        title: { text: '<b>Belly Button Washing Frequency</b> <br> Scrubs per week', font: { size: 24 } },
-        gauge: {
-          axis: { range: [0, 9],visible:false},
-          steps: [
-            { range: [0, 1], color: "#e6e6e6" },
-            { range: [1, 2], color: "#e6ffe6" },
-            { range: [2, 3], color: "#ccffe6" },
-            { range: [3, 4], color: "#99ff99" },
-            { range: [4, 5], color: "#66ff99" },
-            { range: [5, 6], color: "#66ff66" },
-            { range: [6, 7], color: "#00ff00" },
-            { range: [7, 8], color: "#33cc33" },
-            { range: [8, 9], color: "#00cc00" },
-          ],
-        borderwidth:0
-        }
-      }
+    // Creating gauge using gauge chart
+    // trace = {
+    //     domain: { x: [0, 1], y: [0, 1] },
+    //     type: "indicator",
+    //     mode: "gauge+number",
+    //     value: wfreq,
+    //     title: { text: '<b>Belly Button Washing Frequency</b> <br> Scrubs per week', font: { size: 24 } },
+    //     gauge: {
+    //       axis: { range: [0, 9],visible:false},
+    //       steps: [
+    //         { range: [0, 1], color: "#e6e6e6" },
+    //         { range: [1, 2], color: "#e6ffe6" },
+    //         { range: [2, 3], color: "#ccffe6" },
+    //         { range: [3, 4], color: "#99ff99" },
+    //         { range: [4, 5], color: "#66ff99" },
+    //         { range: [5, 6], color: "#66ff66" },
+    //         { range: [6, 7], color: "#00ff00" },
+    //         { range: [7, 8], color: "#33cc33" },
+    //         { range: [8, 9], color: "#00cc00" },
+    //       ],
+    //     borderwidth:0
+    //     }
+    //   }
 
+    // Creating gauge using Donut Chart
+    trace = {
+      domain: {row:0, column: 0},
+      title: { text: '<br> Scrubs per week'},
+      type: 'pie',
+      textposition: 'inside',
+      text: [' ','8-9', '7-8', '6-7', '5-6', '4-5', '3-4', '2-3','1-2', '0-1' ],      
+      marker: {
+        colors:["#ffffff","#00cc00","#33cc33","#00ff00","#66ff66","#66ff99","#99ff99","#ccffe6","#e6ffe6","#e6e6e6"]
+      },
+      values: [180,20, 20, 20, 20, 20, 20,20, 20, 20],
+      rotation: 90,
+      hole: 0.6,
+      textinfo: 'text',
+      hoverinfo: 'none'
+    }
       var data = [trace];
 
       var layout = {
         width: 500,
-        height: 400,
-        margin: { t: 25, r: 25, l: 25, b: 25 },
-        font: { color: "black", family: "Arial" }
+        height: 500,
+        margin: { t: 5, r: 5, l: 5, b: 5 },
+        font: { color: "black", family: "Arial" },
+        shapes: [{line: { color: 'red'},type: 'circle',x0: 0.49,y0: 0.49,x1: 0.51,y1: 0.51,fillcolor: 'red'},
+          {line: { color: "red", width: 3 },type: 'line',x0: 0.5,y0:0.5,x1: 0.5,y1: 0.5}],
+        showlegend: false
       };
       
       Plotly.newPlot('gauge', data, layout); 
 
+      // Calculate theta based of washing frequency
+      var theta=0;
+
+      if (wfreq) {
+        theta = (1-(wfreq/9))*Math.PI;
+      } else{
+        theta = Math.PI;
+      }
+      // calcualte the needle head coordination in the gauge chart
+      var x = 0.3*Math.cos(theta)+0.5;
+      var y = 0.3*Math.sin(theta)+0.5;
+
+      Plotly.relayout('gauge',{'shapes[1].x1':x,'shapes[1].y1':y})
 }
+
 
 
 // Call updatePlotly() when a change takes place to the DOM
