@@ -38,7 +38,7 @@ For this purpose, D3 library is used to read in `samples.json`. and then these i
 
 By choosing a new sample from dropdown list, the demographic information section and all of the plots get updated.
 
-THis is how the dashboard looklike:
+This is how the dashboard looklike:
 
 ![Dashboard](Images/dashboard.PNG)
 
