@@ -38,7 +38,7 @@ For this purpose, D3 library is used to read in `samples.json`. and then these i
 
 By choosing a new sample from dropdown list, the demographic information section and all of the plots get updated.
 
-And finally this is how the dashboard looks like:
+And finally this is how the [dashboard](https://helenamin.github.io/Belly-Button-Biodiversity/) looks like:
 
 ![Dashboard](Images/dashboard.PNG)
 
