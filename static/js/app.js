@@ -114,7 +114,7 @@ function buildBubblePlot(data){
     var trace1 = {
         x: data.otu_ids,
         y: data.sample_values,
-        text:(data.otu_ids,data.sample_values,data.otu_labels),
+        text:data.otu_labels,
         mode: 'markers',
         marker: {
           color: data.otu_ids,
